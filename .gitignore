@@ -1,0 +1,5 @@
+watenv/
+__pycache__/
+*.sqlite3
+pp_cache/*
+/information.log

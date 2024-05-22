@@ -1,0 +1,22 @@
+{% extends "ads/base.html" %}
+{% load static %}
+
+{% block title %}Ads{% endblock %}
+
+{% block content %}
+  <h1 class="display-4">Реклама</h1>
+  <div class="list-group">
+    {% for campaign in campaigns %}
+      <div class="list-group-item">
+        <h2 class="mb-3">{{ campaign.name }}</h2>
+        <ul class="list-group list-group-flush">
+          {% for offer in campaign.offers.all %}
+            <li class="list-group-item">
+              <a href="{% url 'landing_page' offer.slug %}" class="text-decoration-none">{{ offer.title }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

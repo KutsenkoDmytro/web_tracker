@@ -1,0 +1,21 @@
+{% extends "ads/base.html" %}
+{% load static %}
+
+{% block title %}
+Fill out the feedback form
+{% endblock %}
+
+{% block content %}
+
+    <div class="card">
+        <div class="card-body">
+            <h1 class="card-title">Зворотний зв'язок</h1>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-dark">Надіслати</button>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

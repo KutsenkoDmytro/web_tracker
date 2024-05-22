@@ -1,0 +1,124 @@
+{% extends "ads/base.html" %}
+{% load static %}
+
+{% block title %}Diagram{% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/diagram.css' %}">
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+{% endblock %}
+
+{% block content %}
+<select id="offer-filter">
+    <option value="all" {% if current_filter == all %}selected{% endif %}>Всі офери</option>
+    {% for offer in offers %}
+        <option value="{{ offer.id }}" {% if current_filter == offer.id %}selected{% endif %}>{{ offer.title }}</option>
+    {% endfor %}
+</select>
+
+<select id="sort-order">
+    <option value="asc" {% if current_sort == asc %}selected{% endif %}>По зростанню</option>
+    <option value="desc" {% if current_sort == desc %}selected{% endif %}>По спаданню</option>
+</select>
+
+<figure class="highcharts-figure">
+    <div id="container"></div>
+    <p class="highcharts-description">
+        Графік відображає конверсію інтернет-маркетингу — відношення числа відвідувачів сайту,
+        які виконали на ньому якісь цільові дії (реєстрацію), до загального числа відвідувачів сайту,
+        виражене у відсотках.
+    </p>
+</figure>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        function fetchData(filter, sort) {
+            $.ajax({
+                url: '{% url "diagram" %}',
+                data: {
+                    'filter': filter,
+                    'sort': sort
+                },
+                dataType: 'json',
+                success: function(data) {
+                    updateChart(data);
+                }
+            });
+        }
+
+        function updateChart(data) {
+            Highcharts.chart('container', {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Конверсія інтернет-маркетингу по оферах'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    type: 'category',
+                    labels: {
+                        autoRotation: [-45, -90],
+                        style: {
+                            fontSize: '13px',
+                            fontFamily: 'Verdana, sans-serif'
+                        }
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: '%'
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                tooltip: {
+                    pointFormat: 'Конверсія: <b>{point.y:.1f}%</b>'
+                },
+                series: [{
+                    name: 'Конверсія',
+                    colors: data.colors,
+                    colorByPoint: true,
+                    groupPadding: 0,
+                    data: data.series,
+                    dataLabels: {
+                        enabled: true,
+                        rotation: -90,
+                        color: '#FFFFFF',
+                        inside: true,
+                        verticalAlign: 'top',
+                        format: '{point.y:.1f}', // one decimal
+                        y: 10, // 10 pixels down from the top
+                        style: {
+                            fontSize: '13px',
+                            fontFamily: 'Verdana, sans-serif'
+                        }
+                    }
+                }]
+            });
+        }
+
+        // Початкова загрузка даних
+        fetchData('all', 'asc');
+
+        // Обробка зміни фільтру
+        $('#offer-filter, #sort-order').change(function() {
+            var filter = $('#offer-filter').val();
+            var sort = $('#sort-order').val();
+            fetchData(filter, sort);
+        });
+    });
+</script>
+{% endblock %}

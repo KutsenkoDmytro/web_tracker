@@ -1,0 +1,244 @@
+{% extends "ads/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/dashboards/datagrid.js"></script>
+<script src="https://code.highcharts.com/dashboards/dashboards.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<h1 id="title">Динаміка кліків та лідів по оферах</h1>
+<div id="container">
+    <div class="row">
+        <div id="kpi-wrapper">
+            <div class="cell" id="kpi-clicks"></div>
+            <div class="cell" id="kpi-leads"></div>
+        </div>
+        <div class="cell" id="dashboard-col-0"></div>
+        <div class="cell" id="dashboard-col-1"></div>
+    </div>
+    <div class="row">
+        <div class="cell" id="dashboard-col-2"></div>
+    </div>
+</div>
+
+<p class="highcharts-description">
+    Базовий дашборд який відображає кількість кліків та лідів по оферах.<br/>
+</p>
+
+<script type="text/javascript">
+
+        $(document).ready(function() {
+        var data = {{ dashboard_data|safe }};
+
+           Dashboards.board('container', {
+            dataPool: {
+                connectors: [{
+                    id: 'micro-element',
+                    type: 'JSON',
+                    options: {
+                        firstRowAsNames: false,
+                        columnNames: ['Офери', 'Кліки',  'Ліди'],
+                        data: data.dash_leads_and_clicks.series
+                    }
+                }]
+            },
+            components: [{
+                type: 'KPI',
+                renderTo: 'kpi-clicks',
+                value: data.dash_leads_and_clicks.avg_clicks,
+                valueFormat: '{value}',
+                title: 'Кліки',
+                subtitle: 'середній показник'
+            }, {
+                type: 'KPI',
+                renderTo: 'kpi-leads',
+                value: data.dash_leads_and_clicks.avg_leads,
+                title: 'Ліди',
+                valueFormat: '{value}',
+                subtitle: 'середній показник'
+            }, {
+                sync: {
+                    visibility: true,
+                    highlight: true,
+                    extremes: true
+                },
+                connector: {
+                    id: 'micro-element',
+                    columnAssignment: [{
+                        seriesId: 'Кліки',
+                        data: ['Офери', 'Кліки']
+                    }]
+                },
+                renderTo: 'dashboard-col-0',
+                type: 'Highcharts',
+                chartOptions: {
+                    xAxis: {
+                        type: 'category',
+                        accessibility: {
+                            description: 'Actions'
+                        }
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'од.'
+                        },
+                        plotLines: [{
+                            value: data.dash_leads_and_clicks.avg_clicks,
+                            zIndex: 7,
+                            dashStyle: 'shortDash',
+                            label: {
+                                text: 'AVG',
+                                align: 'right',
+                                style: {
+                                    color: '#B73C28'
+                                }
+                            }
+                        }]
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            marker: {
+                                radius: 6
+                            }
+                        }
+                    },
+                    legend: {
+                        enabled: true,
+                        verticalAlign: 'top'
+                    },
+                    chart: {
+                        animation: false,
+                        type: 'column',
+                        spacing: [30, 30, 30, 20]
+                    },
+                    title: {
+                        text: ''
+                    },
+                    tooltip: {
+                        valueSuffix: ' од.',
+                        stickOnContact: true
+                    },
+                    lang: {
+                        accessibility: {
+                            chartContainerLabel: 'Clicks by offers'
+                        }
+                    },
+                    accessibility: {
+                        description: `description`,
+                        point: {
+                            valueSuffix: ' од.'
+                        }
+                    }
+                }
+            }, {
+                renderTo: 'dashboard-col-1',
+                sync: {
+                    visibility: true,
+                    highlight: true,
+                    extremes: true
+                },
+                connector: {
+                    id: 'micro-element',
+                    columnAssignment: [{
+                        seriesId: 'Ліди',
+                        data: ['Офери', 'Ліди']
+                    }]
+                },
+                type: 'Highcharts',
+                chartOptions: {
+                    xAxis: {
+                        type: 'category',
+                        accessibility: {
+                            description: 'Actions'
+                        }
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'од.'
+                        },
+                        max: 8,
+                        plotLines: [{
+                            value: data.dash_leads_and_clicks.avg_leads,
+                            dashStyle: 'shortDash',
+                            label: {
+                                text: 'AVG',
+                                align: 'right',
+                                style: {
+                                    color: '#B73C28'
+                                }
+                            }
+                        }]
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            marker: {
+                                radius: 6
+                            }
+                        }
+                    },
+                    title: {
+                        text: ''
+                    },
+                    legend: {
+                        enabled: true,
+                        verticalAlign: 'top'
+                    },
+                    chart: {
+                        animation: false,
+                        type: 'column',
+                        spacing: [30, 30, 30, 20]
+                    },
+                    tooltip: {
+                        valueSuffix: ' од.',
+                        stickOnContact: true
+                    },
+                    lang: {
+                        accessibility: {
+                            chartContainerLabel: 'Leads by offers'
+                        }
+                    },
+                    accessibility: {
+                        description: `description`,
+                        point: {
+                            valueSuffix: ' од.'
+                        }
+                    }
+                }
+            }, {
+                renderTo: 'dashboard-col-2',
+                connector: {
+                    id: 'micro-element'
+                },
+                type: 'DataGrid',
+                sync: {
+                    highlight: true,
+                    visibility: true
+                }
+            }]
+        }, true);
+
+
+     });
+
+</script>
+
+
+{% endblock %}

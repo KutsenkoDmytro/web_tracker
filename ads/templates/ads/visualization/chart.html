@@ -1,0 +1,63 @@
+{% extends "ads/base.html" %}
+{% load static %}
+
+{% block title %}Chart{% endblock %}
+
+{% block js%}
+    {{ block.super }}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+{% endblock%}
+
+
+{% block content %}
+<div id="container" style="width: 100%; height: 90vh;"></div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var data = {{ charts_data|safe }};
+
+        Highcharts.chart('container', {
+            title: {
+                text: 'Динаміка кліків та лідів по днях',
+                align: 'left'
+            },
+            subtitle: {
+                text: 'всі офери',
+                align: 'left'
+            },
+            yAxis: {
+                title: {
+                    text: 'Кількість'
+                }
+            },
+            xAxis: {
+                categories: data.chart_leads_and_clicks.dates_list
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle'
+            },
+            plotOptions: {},
+            series: data.chart_leads_and_clicks.series,
+            responsive: {
+                rules: [{
+                    condition: {
+                        maxWidth: 500
+                    },
+                    chartOptions: {
+                        legend: {
+                            layout: 'horizontal',
+                            align: 'center',
+                            verticalAlign: 'bottom'
+                        }
+                    }
+                }]
+            }
+        });
+    });
+</script>
+
+
+{% endblock %}
